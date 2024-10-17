@@ -1,9 +1,13 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\woocommerce\OrderController as OrderWoo;
+use App\Http\Controllers\woocommerce\ProductController as ProductWoo;
+use App\Http\Controllers\woocommerce\CustomerController as CustomerWoo;
+use App\Http\Controllers\ProductController as ProductTik;
+use App\Http\Controllers\OrderController as OrderTik;
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\woocommerce\WooController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,29 +22,52 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::prefix('tiktok')->group(function () {
+    // Authentication routes
+    Route::get('/auth', [AuthController::class, 'createAuth']);
+    Route::get('/auth/callback', [AuthController::class, 'handleCallback']);
+    Route::get('/auth/handleRefreshToken', [AuthController::class, 'handleRefreshToken']);
+    Route::get('/auth/getAuthorizedShopCipher', [AuthController::class, 'getAuthorizedShopCipher']);
+
+    // Product routes
+    Route::get('/products/all', [ProductTik::class, 'getProducts']);
+    Route::get('/product/{id}', [ProductTik::class, 'getProduct']);
+
+    // Order routes
+    Route::get('/orders/all', [OrderTik::class, 'getOrders']);
+    Route::get('/orders/{id}', [OrderTik::class, 'getOrder']);
+
+    // Webhook routes
+    Route::post('/webhook', [WebhookController::class, 'connection']);
+    Route::get('/webhook/createSignature', [WebhookController::class, 'createSignature']);
 });
 
-// Route for initiating authentication
-Route::get('/auth', [AuthController::class, 'createAuth']);
 
-Route::get('/auth/callback', [AuthController::class, 'handleCallback']);
-// Route::get('/auth/handleToken', [AuthController::class, 'handleToken']);
-Route::get('/auth/handleRefreshToken', [AuthController::class, 'handleRefreshToken']);
+Route::prefix('/woo')->group(function () {
+    // Customer routes
+    Route::prefix('/customers')->group(function() {
+        Route::get('', [CustomerWoo::class, 'getCustomers']);
+        Route::post('', [CustomerWoo::class, 'createCustomer']);
+        Route::get('/{id}', [CustomerWoo::class, 'getCustomer']);
+        Route::put('/{id}', [CustomerWoo::class, 'updateCustomer']);
+        Route::delete('/{id}', [CustomerWoo::class, 'deleteCustomer']);
+    });
 
-// use
-Route::get('/auth/getAuthorizedShopCipher', [AuthController::class, 'getAuthorizedShopCipher']);
+    // Product routes
+    Route::prefix('/products')->group(function() {
+        Route::get('', [ProductWoo::class, 'getProducts']);
+        Route::post('', [ProductWoo::class, 'createProduct']);
+        Route::get('/{id}', [ProductWoo::class, 'getProduct']);
+        Route::put('/{id}', [CustomerWoo::class, 'updateProduct']);
+        Route::delete('/{id}', [CustomerWoo::class, 'deleteProduct']);
+    });
 
-// product
-Route::get('/products/all', [ProductController::class, 'getProducts']);
-Route::get('/product/{id}', [ProductController::class, 'getProduct']);
-
-
-// orders
-Route::get('/orders/all', [OrderController::class, 'getOrders']);
-Route::get('/orders/{id}', [OrderController::class, 'getOrder']);
-
-
-// webhook
-Route::get('/webhook', [WebhookController::class, 'connection']);
+    // Order routes
+    Route::prefix('/orders')->group(function() {
+        Route::get('', [OrderWoo::class, 'getOrders']);
+        Route::post('', [CustomerWoo::class, 'createOrder']);
+        Route::get('/{id}', [CustomerWoo::class, 'getOrder']);
+        Route::put('/{id}', [CustomerWoo::class, 'updateCustomer']);
+        Route::delete('/{id}', [CustomerWoo::class, 'deleteOrder']);
+    });
+});

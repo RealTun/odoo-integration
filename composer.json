@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
+        "automattic/woocommerce": "^3.1",
         "ecomphp/tiktokshop-php": "^2.5",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.10",

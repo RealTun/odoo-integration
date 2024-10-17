@@ -15,7 +15,6 @@ class AuthController extends Controller
     private $accessToken;
     private $refreshToken;
     private $shopCipher; 
-    private $shopId = '7495954110325557258';
     private $authCode;
 
     public function __construct()
@@ -94,9 +93,9 @@ class AuthController extends Controller
 
     private function setToken($accessToken, $refreshToken, $shopCipher, $authCode)
     {
-        cache()->put('access_token', $accessToken, 3600);
-        cache()->put('refresh_token', $refreshToken, 3600);
-        cache()->put('shop_cipher', $shopCipher, 3600);
+        cache()->put('access_token', $accessToken, 14400);
+        cache()->put('refresh_token', $refreshToken, 30000);
+        cache()->put('shop_cipher', $shopCipher, 14400);
 
         $this->accessToken = $accessToken;
         $this->refreshToken = $refreshToken;
@@ -109,8 +108,8 @@ class AuthController extends Controller
         $this->refreshToken = cache('refresh_token');
         $new_token = $this->auth->refreshNewToken($this->refreshToken);
 
-        cache()->put('access_token', $new_token['access_token'], 3600);
-        cache()->put('refresh_token', $new_token['refresh_token'], 3600);
+        cache()->put('access_token', $new_token['access_token'], 14400);
+        cache()->put('refresh_token', $new_token['refresh_token'], 30000);
         return [
             'message' => 'success',
             'access_token' => $this->accessToken,
