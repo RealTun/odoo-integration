@@ -1,14 +1,15 @@
 <?php
 
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\erpnext\WebhookController as ErpnextWebhookController;
+use App\Http\Controllers\odoo\WebhookController as OdooWebhookController;
+use App\Http\Controllers\tiktok\AuthController;
 use App\Http\Controllers\woocommerce\OrderController as OrderWoo;
 use App\Http\Controllers\woocommerce\ProductController as ProductWoo;
 use App\Http\Controllers\woocommerce\CustomerController as CustomerWoo;
-use App\Http\Controllers\ProductController as ProductTik;
-use App\Http\Controllers\OrderController as OrderTik;
-use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\tiktok\ProductController as ProductTik;
+use App\Http\Controllers\tiktok\OrderController as OrderTik;
+use App\Http\Controllers\tiktok\WebhookController;
 use App\Http\Controllers\woocommerce\WooController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,11 +31,11 @@ Route::prefix('tiktok')->group(function () {
     Route::get('/auth/getAuthorizedShopCipher', [AuthController::class, 'getAuthorizedShopCipher']);
 
     // Product routes
-    Route::get('/products/all', [ProductTik::class, 'getProducts']);
-    Route::get('/product/{id}', [ProductTik::class, 'getProduct']);
+    Route::get('/products', [ProductTik::class, 'getProducts']);
+    Route::get('/products/{id}', [ProductTik::class, 'getProduct']);
 
     // Order routes
-    Route::get('/orders/all', [OrderTik::class, 'getOrders']);
+    Route::get('/orders', [OrderTik::class, 'getOrders']);
     Route::get('/orders/{id}', [OrderTik::class, 'getOrder']);
 
     // Webhook routes
@@ -70,4 +71,17 @@ Route::prefix('/woo')->group(function () {
         Route::put('/{id}', [CustomerWoo::class, 'updateCustomer']);
         Route::delete('/{id}', [CustomerWoo::class, 'deleteOrder']);
     });
+
+    // webhook routes
+    Route::get('webhook/all', [WooController::class, 'getAllWebhook']);
+    Route::post('webhook', [WooController::class, 'handleWebhook']);
+});
+
+
+Route::prefix('/erpnext')->group(function(){
+    Route::post('webhook', [ErpnextWebhookController::class, 'handleWebhook']);
+});
+
+Route::prefix('/odoo')->group(function(){
+    Route::post('webhook', [OdooWebhookController::class, 'handleWebhook']);
 });

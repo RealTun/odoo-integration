@@ -21,7 +21,13 @@ class OrderController extends Controller
 
     public function getOrder($id)
     {
-        return $this->woo->get('orders/' . $id);
+        try {
+            return $this->woo->get('orders/' . $id);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 400);
+        }
     }
 
     public function createOrder(Request $request)

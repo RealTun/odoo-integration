@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\tiktok;
 
+use App\Http\Controllers\Controller;
 use EcomPHP\TiktokShop\Client;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;

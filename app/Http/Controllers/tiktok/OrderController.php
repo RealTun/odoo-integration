@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\tiktok;
 
+use App\Http\Controllers\Controller;
 use EcomPHP\TiktokShop\Client;
 use Exception;
 use Illuminate\Http\Request;
 
-class ProductController extends Controller
+class OrderController extends Controller
 {
     //
     private $client;
@@ -28,17 +29,19 @@ class ProductController extends Controller
         $this->client->setShopCipher($shopCipher);
     }
 
-    public function getProducts()
+    public function getOrders()
     {
-        $products = $this->client->Product->checkListingPrerequisites();
+        $orders = $this->client->Order->getOrderList([
+            'order_status' => 'UNPAID', // ON_HOLD, PARTIALLY_SHIPPING, AWAITING_SHIPMENT, AWAITING_COLLECTION, IN_TRANSIT, DELIVERED, COMPLETED, CANCELLED
+            'page_size' => 50,
+        ]);
 
-        return $products;
+        return $orders;
     }
 
-    public function getProduct($product_id)
+    public function getOrder($order_id)
     {
-        $product = $this->client->Product->getProduct($product_id);
-
-        return $product;
+        $order = $this->client->Order->getOrderDetail($order_id);
+        return $order;
     }
 }

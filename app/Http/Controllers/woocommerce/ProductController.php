@@ -21,7 +21,13 @@ class ProductController extends Controller
 
     public function getProduct($id)
     {
-        return $this->woo->get('products/' . $id);
+        try {
+            return $this->woo->get('products/' . $id);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 400);
+        }
     }
 
     public function createProduct(Request $request)
