@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\erpnext\WebhookController as ErpnextWebhookController;
+use App\Http\Controllers\odoo\CustomerController;
+use App\Http\Controllers\odoo\ProductController;
 use App\Http\Controllers\odoo\WebhookController as OdooWebhookController;
 use App\Http\Controllers\tiktok\AuthController;
 use App\Http\Controllers\woocommerce\OrderController as OrderWoo;
@@ -84,4 +86,20 @@ Route::prefix('/erpnext')->group(function(){
 
 Route::prefix('/odoo')->group(function(){
     Route::post('webhook', [OdooWebhookController::class, 'handleWebhook']);
+
+    Route::prefix('/customers')->group(function() {
+        Route::get('', [CustomerController::class, 'getAllCustomer']);
+        Route::post('', [CustomerController::class, 'createCustomer']);
+        Route::get('/{id}', [CustomerController::class, 'getCustomer']);
+        Route::patch('/{id}', [CustomerController::class, 'updateCustomer']);
+        Route::delete('/{id}', [CustomerController::class, 'deleteCustomer']);
+    });
+
+    Route::prefix('/products')->group(function() {
+        Route::get('', [ProductController::class, 'getAllProduct']);
+        Route::post('', [ProductController::class, 'createCustomer']);
+        Route::get('/{id}', [ProductController::class, 'getProduct']);
+        Route::patch('/{id}', [ProductController::class, 'updateCustomer']);
+        Route::delete('/{id}', [ProductController::class, 'deleteCustomer']);
+    });
 });
