@@ -4,6 +4,7 @@ namespace App\Http\Controllers\odoo;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Ripoo\OdooClient;
 
 class ProductController extends Controller
@@ -31,6 +32,25 @@ class ProductController extends Controller
         $products = $this->client->search_read('product.template', $criteria, $fields);
 
         return response($products);
+    }
+
+    public function getAllBarcode()
+    {
+        $criteria = [
+            // ['is_company', '=', true],
+        ];
+
+        $fields = ['barcode'];
+
+        $products = $this->client->search_read('product.template', $criteria, $fields);
+        $barcodes = [];
+        foreach ($products as $product) {
+            if($product['barcode'] != false){
+                $barcodes[] = $product['barcode'];
+            }
+        }
+
+        return $barcodes;
     }
 
     public function getProduct(string $id)
@@ -106,6 +126,54 @@ class ProductController extends Controller
                 'status' => 'error',
                 'message' => $e->getMessage()
             ], 400);
+        }
+    }
+
+    // via tiktok
+    public function createProductViaTiktok($raw)
+    {
+        $raw = json_decode($raw, true);
+        $data = [
+            'name' => $raw['title'],
+            'type' => 'consu',
+            'categ_id' => 1,
+            // 'description_ecommerce' => 'san pham nhu cc dung co mua',
+            'list_price' => $raw['price'],
+            'barcode' => $raw['id'],
+            'weight' => 0.3,
+            'is_published' => $raw['status'] == "ACTIVE" ? true : false
+        ];
+
+        try {
+            $id = $this->client->create('product.template', $data);
+            // $response = $this->getProduct($id);
+            // return response([
+            //     'status' => 'success',
+            //     'data' => json_decode($response->content(), true)
+            // ], 201);
+        } catch (\Exception $e) {
+            return response([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    public function updateProductViaHook($body)
+    {
+        try {
+            $id = cache()->get('product_id');;
+            $this->client->write('product.template', [$id], $body);
+            // $response = $this->getProduct($id);
+            // $data = json_decode($response->content(), true);
+            Log::info('Update barcode success');
+            cache()->delete('product_id');
+        } catch (\Exception $e) {
+            Log::error('Update barcode error');
+            // return response([
+            //     'status' => 'error',
+            //     'message' => $e->getMessage()
+            // ], 400);
         }
     }
 }

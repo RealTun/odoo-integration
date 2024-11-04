@@ -32,9 +32,21 @@ class ProductController extends Controller
 
     public function getProducts()
     {
-        $products = $this->client->Product->checkListingPrerequisites();
-
-        return $products;
+        $products = $this->client->Product->searchProducts();
+        $data = [];
+        foreach($products['products'] as $product)
+        {
+            if($product['status'] == "DELETED") continue;
+            array_push($data, [
+                "id" => $product['id'] ?? "",
+                "title" => $product['title'] ?? "",
+                "quantity" => $product['skus'][0]['inventory'][0]['quantity'] ?? 0,
+                "price" => $product['skus'][0]['price']['tax_exclusive_price'] ?? "",
+                "currency" => $product['skus'][0]['price']['currency'] ?? "",
+                "status" => $product['status'] ?? ""
+            ]);
+        }
+        return $data;
     }
 
     public function getProduct($product_id)
@@ -55,9 +67,9 @@ class ProductController extends Controller
             Log::info("Product created after received hook odoo", [
                 'product' => $product
             ]);
-            return $product;
+            // return $product;
         } catch (Exception $e) {
-            Log::error("Product created after received hook odoo", [
+            Log::error("Product create on tiktok error", [
                 'error' => $e->getMessage()
             ]);
             return [
@@ -70,7 +82,7 @@ class ProductController extends Controller
     private function formatData($rawData)
     {
         $data = [
-            "description" => $rawData['description_ecommerce'] ?? "khong biet nua",
+            "description" => strval($rawData['description_ecommerce']) ?? "khong biet nua",
             "category_id" => "601226",
             "main_images" => [
                 [
@@ -102,11 +114,28 @@ class ProductController extends Controller
             ],
             "title" => $rawData['name'] ?? "San pham test khong ro ten nhu nao",
             "package_weight" => [
-                "value" => strval($rawData['weight']) ?? '0.3',
+                // "value" => strval($rawData['weight']) ?? '0.3',
+                "value" => '0.3',
                 "unit" => $rawData['weight_unit'] ?? "KILOGRAM"
             ]
         ];
 
         return $data;
+    }
+
+    public function deleteProduct($product_id)
+    {
+        try {
+            $this->client->Product->deleteProducts([$product_id]);
+            Log::info("delete product tiktok success");
+        } catch (Exception $e) {
+            Log::error("delete product tiktok error", [
+                'error' => $e->getMessage()
+            ]);
+            return [
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ];
+        }
     }
 }

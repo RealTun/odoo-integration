@@ -106,4 +106,48 @@ class CustomerController extends Controller
             ], 400);
         }
     }
+
+    public function createCustomeViaTiktok($raw)
+    {
+        $raw = json_decode($raw, true);
+        $data = [
+            'name' => $raw['name'],
+            'email' => '',
+            'phone' => $raw['phone_number'],
+            'street' => $raw['district'],
+            'city' => $raw['city'],
+        ];
+     
+        try {
+            $flag = $this->isExisted($raw);
+            if($flag) {
+                return;
+            }
+
+            $this->client->create('res.partner', $data);
+        } catch (\Exception $e) {
+            return response([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    private function isExisted($raw)
+    {
+        $criteria = [
+            ['name', '=', $raw['name']],
+            ['phone', '=', $raw['phone_number']],
+        ];
+
+        $fields = ['id', 'name', 'email', 'phone', 'mobile', 'street', 'city', 'zip'];
+
+        $customer = $this->client->search_read('res.partner', $criteria, $fields, 1);
+
+        if($customer) {
+            return true;
+        }
+
+        return false;
+    }
 }

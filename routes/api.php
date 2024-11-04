@@ -4,6 +4,7 @@ use App\Http\Controllers\erpnext\WebhookController as ErpnextWebhookController;
 use App\Http\Controllers\odoo\CustomerController;
 use App\Http\Controllers\odoo\OrderController;
 use App\Http\Controllers\odoo\ProductController;
+use App\Http\Controllers\odoo\SyncDataController;
 use App\Http\Controllers\odoo\WebhookController as OdooWebhookController;
 use App\Http\Controllers\tiktok\AuthController;
 use App\Http\Controllers\woocommerce\OrderController as OrderWoo;
@@ -43,7 +44,6 @@ Route::prefix('tiktok')->group(function () {
 
     // Webhook routes
     Route::post('/webhook', [WebhookController::class, 'connection']);
-    Route::get('/webhook/createSignature', [WebhookController::class, 'createSignature']);
 });
 
 
@@ -97,7 +97,7 @@ Route::prefix('/odoo')->group(function(){
     });
 
     Route::prefix('/products')->group(function() {
-        Route::get('', [ProductController::class, 'getAllProduct']);
+        Route::get('', [ProductController::class, 'getAllBarcode']);
         Route::post('', [ProductController::class, 'createProduct']);
         Route::get('/{id}', [ProductController::class, 'getProduct']);
         Route::patch('/{id}', [ProductController::class, 'updateProduct']);
@@ -111,4 +111,8 @@ Route::prefix('/odoo')->group(function(){
         Route::patch('/{id}', [OrderController::class, 'updateOrder']);
         Route::delete('/{id}', [OrderController::class, 'deleteOrder']);
     });
+
+    Route::get('syncProducts', [SyncDataController::class, 'syncProductsFromTiktok']);
+    Route::get('syncOrders', [SyncDataController::class, 'syncOrdersFromTiktok']);
+    Route::get('syncCustomers', [SyncDataController::class, 'syncCustomersFromTiktok']);
 });

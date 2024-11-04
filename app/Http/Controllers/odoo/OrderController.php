@@ -66,17 +66,6 @@ class OrderController extends Controller
 
     public function createOrder(Request $request)
     {
-        // $data = [
-        //     'name' => 'San pham dau buoi',
-        //     'type' => 'consu',
-        //     'categ_id' => 1,
-        //     'description_ecommerce' => 'san pham nhu cc dung co mua',
-        //     'list_price' => 2100.5,
-        //     'barcode' => '21062003',
-        //     'weight' => 0.3,
-        //     'is_published' => true
-        // ];
-
         try {
             $id = $this->client->create('sale.order', $request->all());
             $response = $this->getOrder($id);

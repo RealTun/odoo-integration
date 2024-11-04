@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\tiktok;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\odoo\ProductController;
 use EcomPHP\TiktokShop\Client;
 use EcomPHP\TiktokShop\Errors\TiktokShopException;
 use EcomPHP\TiktokShop\Webhook;
@@ -59,26 +60,12 @@ class WebhookController extends Controller
                 $this->ProductInformationChange();
                 break;
             case 16: 
-                $this->ProductCreation();
+                $this->ProductCreation($webhook->getData());
                 break;
             case 18: 
                 $this->ProductCategoryChange();
                 break;
         }
-    }
-
-    public function createSignature($requestBody)
-    {
-        $app_key = env('TIKTOK_APP_KEY');
-        $app_secret = env('TIKTOK_APP_PRIVATE_KEY');
-
-        // Concatenate app key and request body
-        $signatureBaseString = $app_key . $requestBody;
-
-        // Generate the signature using HMAC-SHA256
-        $calculatedSignature = hash_hmac('sha256', $signatureBaseString, $app_secret);
-
-        return $calculatedSignature;
     }
 
     public function OrderStatusChange()
@@ -96,9 +83,11 @@ class WebhookController extends Controller
         // type 18
     }
 
-    public function ProductCreation()
+    public function ProductCreation($data)
     {
         // type 16
+        $productOdoo = new ProductController();
+        $productOdoo->updateProductViaHook(['barcode' => $data['product_id']]);
     }
 
     public function ProductInformationChange()
